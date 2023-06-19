@@ -37,8 +37,10 @@ public class Main extends JavaPlugin {
 
     /*
     For the moment it is impossible to reduce the lag when creating a game for the world
+    Fixed bug where you were told "Game started" every minute instead of just at the start
+    Fixed bug with the scoreboard
      */
 }
 
-// TODO Give item information for weird items likes TIPPED_ARROW
 // TODO Server records, averages, personal bests
+// TODO Give item information for weird items likes TIPPED_ARROW

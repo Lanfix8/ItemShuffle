@@ -15,7 +15,7 @@ import static java.lang.Math.abs;
 public class ItemShuffleGame {
 
     private final Main main;
-    private WorldManager worldManager;
+    private final WorldManager worldManager;
 
     private World world;
 
@@ -41,8 +41,8 @@ public class ItemShuffleGame {
 
     public void start() {
         this.createWorld();
-        this.preparePlayers();
         this.chooseItem();
+        this.preparePlayers();
         this.ticks = 0;
         this.seconds = -10;
         this.minutes = 0;
@@ -62,6 +62,18 @@ public class ItemShuffleGame {
         this.random.setSeed(this.world.getSeed());
     }
 
+    private void chooseItem() {
+        List<Material> materials = new ArrayList<>();
+        for (Material material: Material.values()) {
+            if (material.isItem()) {
+                if (!this.main.getConfig().getStringList("items-blacklist").contains(material.name())) {
+                    materials.add(material);
+                }
+            }
+        }
+        this.item = materials.get(this.random.nextInt(materials.size()));
+    }
+
     private void preparePlayers() {
         players.clear();
         players.addAll(Bukkit.getOnlinePlayers());
@@ -74,19 +86,8 @@ public class ItemShuffleGame {
             player.setGameMode(GameMode.ADVENTURE);
             player.getInventory().clear();
             player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
+            ScoreboardManager.newScoreboard(player, 0, 0, this.item.name());
         }
-    }
-
-    private void chooseItem() {
-        List<Material> materials = new ArrayList<>();
-        for (Material material: Material.values()) {
-            if (material.isItem()) {
-                if (!this.main.getConfig().getStringList("items-blacklist").contains(material)) {
-                    materials.add(material);
-                }
-            }
-        }
-        this.item = materials.get(this.random.nextInt(materials.size()));
     }
 
     public void newTick() {
@@ -99,7 +100,7 @@ public class ItemShuffleGame {
                 this.minutes += 1;
             }
             for (Player player: players) {
-                if (this.seconds == 0) {
+                if (this.seconds == 0 && this.minutes == 0) {
                     player.sendTitle("Game started", "Good Luck", 10, 20, 10);
                     player.setGameMode(GameMode.SURVIVAL);
                 } else if (this.seconds < 0) {

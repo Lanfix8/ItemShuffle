@@ -10,21 +10,17 @@ import org.bukkit.scoreboard.Scoreboard;
 public class ScoreboardManager {
 
     public static void updateScoreboard(Player player, int minutes, int seconds, String item) {
-        if (player.getScoreboard().getTeam("time") != null) {
-            Scoreboard scoreboard = player.getScoreboard();
-            scoreboard.getObjective("ItemShuffle").setDisplaySlot(DisplaySlot.SIDEBAR);
+        Scoreboard scoreboard = player.getScoreboard();
+        scoreboard.getObjective("ItemShuffle").setDisplaySlot(DisplaySlot.SIDEBAR);
 
-            scoreboard.getTeam("time").setSuffix((minutes == 0 ? "" : minutes + ":")
-                    + (seconds < 10 ? "0": "") + seconds + (minutes == 0 ? " seconds" : ""));
-            scoreboard.getTeam("item").setSuffix(item);
+        scoreboard.getTeam("time").setSuffix((minutes == 0 ? "" : minutes + ":")
+                + (seconds < 10 ? "0": "") + seconds + (minutes == 0 ? " seconds" : ""));
+        scoreboard.getTeam("item").setSuffix(item);
 
-            player.getPlayer().setScoreboard(scoreboard);
-        } else {
-            newScoreboard(player, minutes, seconds, item);
-        }
+        player.setScoreboard(scoreboard);
     }
 
-    private static void newScoreboard(Player player, int minutes, int seconds, String item) {
+    public static void newScoreboard(Player player, int minutes, int seconds, String item) {
         // Create new scoreboard
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective objective = scoreboard.registerNewObjective("ItemShuffle", "dummy", ChatColor.GOLD + "Item Shuffle");
@@ -45,7 +41,7 @@ public class ScoreboardManager {
         scoreboard.getTeam("item").setSuffix(item);
         objective.getScore(ChatColor.GREEN + "Item to get: ").setScore(13);
         // set player scoreboard
-        player.getPlayer().setScoreboard(scoreboard);
+        player.setScoreboard(scoreboard);
     }
 
 }

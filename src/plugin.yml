@@ -1,6 +1,6 @@
 name: ItemShuffle
 main: fr.lanfix.itemshuffle.Main
-version: 0.2
+version: 0.2.1
 author: Lanfix
 api-version: 1.19
 commands:

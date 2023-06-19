@@ -6,12 +6,12 @@ import java.util.UUID;
 
 public class BestTime implements Comparable<BestTime> {
 
-    private int time;
+    private int time; // in seconds
     private final String name;
     private final UUID uuid;
 
-    public BestTime(int time, String name, UUID uuid) {
-        this.time = time;
+    public BestTime(int ticks, String name, UUID uuid) {
+        this.time = ticks;
         this.name = name;
         this.uuid = uuid;
     }
@@ -21,8 +21,8 @@ public class BestTime implements Comparable<BestTime> {
         return this.time - other.getTime();
     }
 
-    public BestTime(int time, Player player) {
-        this.time = time;
+    public BestTime(int ticks, Player player) {
+        this.time = ticks;
         this.name = player.getName();
         this.uuid = player.getUniqueId();
     }
@@ -31,8 +31,8 @@ public class BestTime implements Comparable<BestTime> {
         return time;
     }
 
-    public void setTime(int time) {
-        this.time = time;
+    public void setTime(int ticks) {
+        this.time = ticks;
     }
 
     public String getName() {
