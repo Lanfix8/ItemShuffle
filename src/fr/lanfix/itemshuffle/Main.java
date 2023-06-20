@@ -38,6 +38,7 @@ public class Main extends JavaPlugin {
             this.game.stop();
         }
         this.game.saveTimes(new File(getDataFolder().getPath() + "/times"));
+        // TODO Delete all worlds
     }
 
     public WorldManager getWorldManager() {
@@ -45,11 +46,12 @@ public class Main extends JavaPlugin {
     }
 
     /*
-    For the moment it is impossible to reduce the lag when creating a game for the world
-    Fixed bug where you were told "Game started" every minute instead of just at the start
-    Fixed bug with the scoreboard
+    Server records, averages, personal bests :
+    The plugin now keeps track of all of this times
+    Every player has his own personal bests, etc...
+    You can now use the average to choose an item which has a maximum average time (for example no more than 5 minutes)
+    You can now select a precise item to start the game with
      */
 }
 
-// TODO Server records, averages, personal bests
 // TODO Give item information for weird items likes TIPPED_ARROW

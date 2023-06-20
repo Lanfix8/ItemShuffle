@@ -1,8 +1,12 @@
 package fr.lanfix.itemshuffle.storage;
 
+import fr.lanfix.itemshuffle.utils.TimeUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,15 +30,18 @@ public class ItemTimes {
         this.personalBests = personalBests;
     }
 
-    public static ItemTimes loadFromYaml(YamlConfiguration data) {
-        Material material = Material.getMaterial(data.getName().replace(".yml", ""));
+    public static ItemTimes empty(Material material) {
+        return new ItemTimes(material, 0, 0, null, new ArrayList<>());
+    }
+
+    public static ItemTimes loadFromYaml(Material material, YamlConfiguration data) {
         int average = data.getInt("average");
         int averageWeight = data.getInt("average_weight");
-        BestTime serverBest = new BestTime(
+        BestTime serverBest = data.contains("server_best") ? new BestTime(
                 data.getInt("server_best.time"),
                 data.getString("server_best.name"),
                 UUID.fromString(data.getString("server_best.uuid", ""))
-        );
+        ) : null;
         ConfigurationSection personalBestsSection = data.getConfigurationSection("personal_bests");
         assert personalBestsSection != null;
         List<BestTime> personalBests = getBestTimesInSection(personalBestsSection);
@@ -61,34 +68,50 @@ public class ItemTimes {
         return average;
     }
 
-    public void setAverage(double average) {
-        this.average = average;
-    }
-
-    public int getAverageWeight() {
-        return averageWeight;
-    }
-
-    public void setAverageWeight(int averageWeight) {
-        this.averageWeight = averageWeight;
-    }
-
     public BestTime getServerBest() {
         return serverBest;
     }
 
-    public void updateServerBest(BestTime newServerBest) {
+    public BestTime getPlayersPersonalBest(Player player) {
+        for (BestTime bestTime : this.personalBests) {
+            if (bestTime.isFrom(player)) {
+                return bestTime;
+            }
+        }
+        return null;
+    }
+
+    public void updateTimes(BestTime bestTime) {
+        updateServerBest(bestTime);
+        updatePersonalBest(bestTime);
+        updateAverage(bestTime.getTime());
+    }
+
+    private void updateServerBest(BestTime newServerBest) {
         if (newServerBest.isBetterThan(this.serverBest)) {
+            if (this.serverBest != null) {
+                Bukkit.getPlayer(newServerBest.getUuid()).sendMessage(
+                        ChatColor.GOLD + "You have beaten the server record of "
+                                + this.serverBest.getName() + " of " + TimeUtils.getTimeString(this.serverBest.getTime()));
+            } else {
+                Bukkit.getPlayer(newServerBest.getUuid()).sendMessage(
+                        ChatColor.GOLD + "You have set the first server record for this item.");
+            }
             this.serverBest = newServerBest;
         }
     }
 
-    public void addPersonalBest(BestTime personalBest) {
+    private void updatePersonalBest(BestTime personalBest) {
         if (this.personalBests.contains(personalBest)) {
-            this.personalBests.forEach(bestTime -> {
-                if (bestTime.getUuid() == personalBest.getUuid() && personalBest.isBetterThan(bestTime)) {
-                    bestTime.setTime(personalBest.getTime());
-                    bestTime.setName(personalBest.getName());
+            this.personalBests.forEach(previousBestTime -> {
+                // FIXME DO SAME AS SERVER BEST BECAUSE THIS SHIT IS NOT WORKING
+                // Use getPlayersPersonalBest
+                if (previousBestTime.getUuid() == personalBest.getUuid() && personalBest.isBetterThan(previousBestTime)) {
+                    Bukkit.getPlayer(personalBest.getUuid()).sendMessage(
+                            ChatColor.GOLD + "You have beaten your previous record of "
+                                    + TimeUtils.getTimeString(previousBestTime.getTime()));
+                    previousBestTime.setTime(personalBest.getTime());
+                    previousBestTime.setName(personalBest.getName());
                 }
             });
         } else {
@@ -96,7 +119,7 @@ public class ItemTimes {
         }
     }
 
-    public void updateAverage(int ticks) {
+    private void updateAverage(int ticks) {
         this.average = (average * averageWeight + ticks) / (averageWeight + 1);
         this.averageWeight++;
     }
@@ -106,11 +129,13 @@ public class ItemTimes {
         YamlConfiguration data = YamlConfiguration.loadConfiguration(file);
         data.set("average", average);
         data.set("average_weight", averageWeight);
-        data.set("server_best.time", serverBest.getTime());
-        data.set("server_best.name", serverBest.getName());
-        data.set("server_best.uuid", serverBest.getUuid().toString());
+        if (serverBest != null) {
+            data.set("server_best.time", serverBest.getTime());
+            data.set("server_best.name", serverBest.getName());
+            data.set("server_best.uuid", serverBest.getUuid().toString());
+        }
         ConfigurationSection personalBestsSection = data.getConfigurationSection("personal_bests");
-        assert personalBestsSection != null;
+        if (personalBestsSection == null) personalBestsSection = data.createSection("personal_bests");
         savePersonalBestsSection(personalBestsSection);
         data.set("personal_bests", personalBestsSection);
         try {
@@ -128,4 +153,17 @@ public class ItemTimes {
         }
     }
 
+
+    /**
+     * @param object Object to compare
+     * @return true if they are from the same material
+     */
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof ItemTimes other) {
+            return this.material.equals(other.getMaterial());
+        } else {
+            return super.equals(object);
+        }
+    }
 }

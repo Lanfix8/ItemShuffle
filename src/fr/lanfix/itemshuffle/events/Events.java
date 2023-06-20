@@ -8,7 +8,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class Events implements Listener {
 
-    private ItemShuffleGame game;
+    private final ItemShuffleGame game;
 
     public Events(ItemShuffleGame game) {
         this.game = game;

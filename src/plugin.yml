@@ -1,10 +1,10 @@
 name: ItemShuffle
 main: fr.lanfix.itemshuffle.Main
-version: 0.2.1
+version: 1.0-SNAPSHOT-13
 author: Lanfix
 api-version: 1.19
 commands:
   itemshuffle:
     description: Start or stop the item shuffle, add an item to the blacklist
     permission: itemshuffle.start
-    usage: /itemshuffle <blacklistAdd / blacklistRemove>
+    usage: /itemshuffle <start / stop / blacklistAdd / blacklistRemove>

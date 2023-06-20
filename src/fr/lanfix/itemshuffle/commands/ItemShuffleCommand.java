@@ -29,14 +29,70 @@ public class ItemShuffleCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command cmd, String msg, String[] args) {
         if (args.length == 0) {
             if (game.isRunning()) {
-                Bukkit.broadcastMessage(ChatColor.RED + "[ItemShuffle] Forced stop of the game.");
+                Bukkit.broadcastMessage(ChatColor.GOLD + "[ItemShuffle]" + ChatColor.RED + " Forced stop of the game.");
                 game.stop();
             } else {
-                game.start();
+                game.start(Integer.MAX_VALUE);
             }
         } else {
             BlacklistManager blacklistManager = new BlacklistManager(main);
             switch (args[0].toLowerCase()) {
+                case "start" -> {
+                    if (args.length == 1) {
+                        if (!game.isRunning()) {
+                            game.start(Integer.MAX_VALUE);
+                        } else {
+                            sender.sendMessage(ChatColor.RED + "A game is already running");
+                        }
+                        return true;
+                    }
+                    switch (args[1].toLowerCase()) {
+                        case "maximumaveragetime" -> {
+                            if (args.length == 2) {
+                                sender.sendMessage(ChatColor.RED + "Please precise a maximum average time.");
+                                sender.sendMessage(ChatColor.RED + "/itemshuffle start maximumAverageTime <maximumAverageTime>");
+                                return true;
+                            }
+                            int minimumTime;
+                            try {
+                                minimumTime = Integer.parseInt(args[2]);
+                            } catch (NumberFormatException e) {
+                                sender.sendMessage(ChatColor.RED + "This is not a valid number.");
+                                return true;
+                            }
+                            if (!game.isRunning()) {
+                                game.start(minimumTime);
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "A game is already running");
+                            }
+                        }
+                        case "item" -> {
+                            if (args.length == 2) {
+                                sender.sendMessage(ChatColor.RED + "Please precise an item to select.");
+                                sender.sendMessage(ChatColor.RED + "/itemshuffle start item <item>");
+                                return true;
+                            }
+                            Material material;
+                            try {
+                                material = Material.valueOf(args[2]);
+                            } catch (IllegalArgumentException e) {
+                                sender.sendMessage(ChatColor.RED + "This is not a valid item.");
+                                return true;
+                            }
+                            if (!game.isRunning()) {
+                                game.start(material);
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "A game is already running");
+                            }
+                        }
+                    }
+                }
+                case "stop" -> {
+                    if (game.isRunning()) {
+                        Bukkit.broadcastMessage(ChatColor.GOLD + "[ItemShuffle]" + ChatColor.RED + " Forced stop of the game.");
+                        game.stop();
+                    }
+                }
                 case "blacklistadd", "blacklist_add", "blacklist-add" -> {
                     if (args.length == 1) {
                         blacklistManager.addItemInHand(sender);
@@ -61,19 +117,25 @@ public class ItemShuffleCommand implements CommandExecutor, TabCompleter {
         }
         return true;
     }
-    // TODO Change to /itemshuffle start / stop...
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String msg, String[] args) {
         List<String> r = new ArrayList<>();
         switch (args.length) {
             case 1 -> {
-                List<String> completeArgs = List.of("blacklistAdd", "blacklistAddHotBar", "blacklistRemove");
+                List<String> completeArgs = List.of("start", "stop", "blacklistAdd", "blacklistAddHotBar", "blacklistRemove");
                 completeArgs.forEach(arg -> {
                     if (arg.toLowerCase().startsWith(args[0].toLowerCase())) r.add(arg);
                 });
             }
             case 2 -> {
                 switch (args[0].toLowerCase()) {
+                    case "start" -> {
+                        List<String> startArgs = List.of("maximumAverageTime", "item");
+                        startArgs.forEach(arg -> {
+                            if (arg.toLowerCase().startsWith(args[1].toLowerCase())) r.add(arg);
+                        });
+                    }
                     case "blacklistadd", "blacklist_add", "blacklist-add" -> {
                         List<String> itemBlacklist = main.getConfig().getStringList("items-blacklist");
                         List<String> blacklistAddArgs = new ArrayList<>();
@@ -92,6 +154,20 @@ public class ItemShuffleCommand implements CommandExecutor, TabCompleter {
                         blacklistRemoveArgs.forEach(arg -> {
                             if (arg.toLowerCase().startsWith(args[1].toLowerCase())) r.add(arg);
                         });
+                    }
+                }
+            }
+            case 3 -> {
+                if (args[0].equalsIgnoreCase("start")) {
+                    switch (args[1].toLowerCase()) {
+                        case "maximumaveragetime" -> r.add("<maximumAverageTime>");
+                        case "item" -> {
+                            List<Material> possibleItems = List.of(Material.values());
+                            possibleItems.forEach(material -> {
+                                if (material.name().toLowerCase().startsWith(args[2].toLowerCase()))
+                                    r.add(material.name());
+                            });
+                        }
                     }
                 }
             }

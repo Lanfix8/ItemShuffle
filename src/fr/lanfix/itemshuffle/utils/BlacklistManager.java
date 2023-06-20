@@ -12,7 +12,7 @@ import java.util.List;
 
 public class BlacklistManager {
 
-    private Main main;
+    private final Main main;
 
     public BlacklistManager(Main main) {
         this.main = main;
