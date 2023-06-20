@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-public class ItemShuffle implements CommandExecutor, TabCompleter {
+public class ItemShuffleCommand implements CommandExecutor, TabCompleter {
 
     private final Main main;
     private final ItemShuffleGame game;
 
-    public ItemShuffle(Main main, ItemShuffleGame game) {
+    public ItemShuffleCommand(Main main, ItemShuffleGame game) {
         this.main = main;
         this.game = game;
     }
@@ -45,9 +45,8 @@ public class ItemShuffle implements CommandExecutor, TabCompleter {
                     }
                 }
                 case "blacklistaddhotbar", "blacklist_addhotbar", "blacklistadd_hotbar", "blacklist_add_hotbar",
-                        "blacklist-addhotbar", "blacklistadd-hotbar", "blacklist-add-hotbar" -> {
-                    blacklistManager.addHotBar(sender);
-                }
+                        "blacklist-addhotbar", "blacklistadd-hotbar", "blacklist-add-hotbar" ->
+                            blacklistManager.addHotBar(sender);
                 case "blacklistremove", "blacklist_remove", "blacklist-remove" -> {
                     if (args.length == 1) {
                         blacklistManager.removeItemInHand(sender);
@@ -62,8 +61,7 @@ public class ItemShuffle implements CommandExecutor, TabCompleter {
         }
         return true;
     }
-
-
+    // TODO Change to /itemshuffle start / stop...
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String msg, String[] args) {
         List<String> r = new ArrayList<>();

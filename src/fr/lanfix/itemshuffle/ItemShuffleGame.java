@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 
+import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -54,6 +55,14 @@ public class ItemShuffleGame {
             }
         };
         this.gameLoop.runTaskTimer(main, 5, 1);
+    }
+
+    public void loadTimes(File timesFolder) {
+        File[] timesFiles = timesFolder.listFiles();
+        if (timesFiles == null) return;
+        for (File file : timesFiles) {
+            // TODO load every time file
+        }
     }
 
     private void createWorld() {
@@ -118,6 +127,7 @@ public class ItemShuffleGame {
                                 + " found the item in " + (this.minutes == 0 ? "" : this.minutes + ":")
                                 + (this.seconds < 10 ? "0": "") + (this.seconds + ((double) this.ticks) / 20)
                                 + (this.minutes == 0 ? " seconds." : "."));
+                // TODO Update bestTimes
                 hasWon = true;
             }
         }
@@ -141,6 +151,10 @@ public class ItemShuffleGame {
         this.running = false;
         Bukkit.broadcastMessage(ChatColor.GOLD + "[ItemShuffle]"  + ChatColor.BLUE + " End of the game !");
         if (worldManager.hasNextWorld()) worldManager.prepareNextWorld();
+    }
+
+    public void saveTimes(File timesFolder) {
+        // TODO Save times
     }
 
     public boolean isRunning() {

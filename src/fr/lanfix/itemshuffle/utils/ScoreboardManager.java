@@ -40,6 +40,7 @@ public class ScoreboardManager {
         scoreboard.getTeam("item").addEntry(ChatColor.GREEN + "Item to get: ");
         scoreboard.getTeam("item").setSuffix(item);
         objective.getScore(ChatColor.GREEN + "Item to get: ").setScore(13);
+        // TODO Add average, server best, and personal best
         // set player scoreboard
         player.setScoreboard(scoreboard);
     }

@@ -7,7 +7,7 @@ import java.util.UUID;
 public class BestTime implements Comparable<BestTime> {
 
     private int time; // in seconds
-    private final String name;
+    private String name;
     private final UUID uuid;
 
     public BestTime(int ticks, String name, UUID uuid) {
@@ -27,6 +27,10 @@ public class BestTime implements Comparable<BestTime> {
         this.uuid = player.getUniqueId();
     }
 
+    public boolean isBetterThan(BestTime other) {
+        return this.time > other.getTime();
+    }
+
     public int getTime() {
         return time;
     }
@@ -39,7 +43,24 @@ public class BestTime implements Comparable<BestTime> {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public UUID getUuid() {
         return uuid;
+    }
+
+    /**
+     * @param object the reference object with which to compare.
+     * @return true if the both inherit from the same player uuid (not if time equals)
+     */
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof BestTime other) {
+            return this.uuid.equals(other.getUuid());
+        } else {
+            return super.equals(object);
+        }
     }
 }
