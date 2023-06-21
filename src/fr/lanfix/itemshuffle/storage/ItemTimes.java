@@ -101,21 +101,20 @@ public class ItemTimes {
         }
     }
 
-    private void updatePersonalBest(BestTime personalBest) {
-        if (this.personalBests.contains(personalBest)) {
-            this.personalBests.forEach(previousBestTime -> {
-                // FIXME DO SAME AS SERVER BEST BECAUSE THIS SHIT IS NOT WORKING
-                // Use getPlayersPersonalBest
-                if (previousBestTime.getUuid() == personalBest.getUuid() && personalBest.isBetterThan(previousBestTime)) {
-                    Bukkit.getPlayer(personalBest.getUuid()).sendMessage(
-                            ChatColor.GOLD + "You have beaten your previous record of "
-                                    + TimeUtils.getTimeString(previousBestTime.getTime()));
-                    previousBestTime.setTime(personalBest.getTime());
-                    previousBestTime.setName(personalBest.getName());
-                }
-            });
-        } else {
-            this.personalBests.add(personalBest);
+    private void updatePersonalBest(BestTime newPersonalBest) {
+        Player player = Bukkit.getPlayer(newPersonalBest.getUuid());
+        assert player != null;
+        BestTime previousBest = getPlayersPersonalBest(player);
+        if (newPersonalBest.isBetterThan(previousBest)) {
+            if (previousBest != null) {
+                player.sendMessage(ChatColor.GOLD + "You have beaten your previous record of "
+                                + TimeUtils.getTimeString(previousBest.getTime()));
+            } else {
+                player.sendMessage(ChatColor.GOLD + "You have set your personal record to "
+                        + TimeUtils.getTimeString(newPersonalBest.getTime()));
+            }
+            personalBests.removeIf(bestTime -> bestTime.isFrom(player));
+            personalBests.add(newPersonalBest);
         }
     }
 
